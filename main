@@ -1,0 +1,193 @@
+#include <stdio.h>
+#include <math.h>
+
+
+int main()
+{
+    FILE *fp;
+    char arquivo [500];
+    int i;
+    int valorAux=0;
+    int pesoAux=0;
+    int auxV2=0;
+    int auxPreencher;
+    int numItens, numMochilas;
+    printf("Digite o nome do arquivo: ");
+    scanf("%s", arquivo);
+    fp = fopen(arquivo,"r"); // Abre arquivo texto para leitura
+    if(!fp)
+    {
+        printf("Erro na abertura do arquivo.\n");
+        return 0;
+    }
+
+    // separando as informacoes
+   fscanf(fp,"%i",&numMochilas);
+   int pesoMaxporMochila[numMochilas];
+   for (i=0; i < numMochilas; i++)
+    {
+        fscanf(fp,"%i",&auxPreencher);
+        pesoMaxporMochila[i]=auxPreencher;
+        // encontrando qual peso pode ser colocado em cada mochila
+    }
+
+    fscanf(fp,"%i",&numItens);
+    int peso[numItens];
+    int valor[numItens];
+    int a=0;
+    int b=0;
+
+    for (int linha = 0; linha < numItens*2; linha++)
+    {
+
+        if(linha%2==0){
+
+            fscanf(fp,"%i",&peso[a]);
+            a++;
+        }
+        else{
+
+            fscanf(fp,"%i",&valor[b]);
+            b++;
+        }
+    }
+
+
+
+    int solucoesMatriz [numItens][numMochilas];
+
+    //armazenando solucoes a serem testadas
+
+    for (int linha = 0; linha < numItens; linha++)
+    {
+        for(int coluna = 0; coluna < numMochilas; coluna++)
+        {
+             fscanf(fp,"%i",&solucoesMatriz[linha][coluna]);
+        }
+    }
+
+
+    //encontrando o maior valor que pode ser guardado em cada mochila
+
+    int maiorValor[numMochilas];
+
+    int auxCapacidade;
+    int aux1;
+    aux1=(pow(2,numItens));
+    int binPossibilidades [aux1][numItens];
+
+
+        /*int auxIncre= (pow(2,(numItens-coluna)));
+        printf("incre  %i ",auxIncre);
+        printf("\nAAAAAAAAA");*/
+        //preencho uma matriz binaria com todas as combinacoes de itens possiveis
+        for(int linha = 0; linha < aux1; linha++)
+        {
+            for (int coluna = 0; coluna < numItens; coluna++)
+            {
+
+            if(coluna ==(numItens-1)){
+                binPossibilidades [linha][coluna]=(linha & 0x1 );
+
+            }
+            else{
+               binPossibilidades[linha][coluna]=((linha >> (numItens-1-coluna) ) & 0x1 );
+            }
+        }
+
+    }
+
+
+    // calculando o valor maximo que consigo para cada mochila respeitando sua capacidade
+    for(int mochila = 0; mochila < numMochilas; mochila++)
+    {
+        auxCapacidade=pesoMaxporMochila[mochila];
+
+         for(int linha = 0; linha < aux1; linha++)
+         {
+             pesoAux=0; // zerando antes da proxima linha
+             valorAux=0; // zerando antes da proxima iteracao
+             for (int coluna = 0; coluna < numItens; coluna++)
+            {
+                int auxiliar;
+                int auxiliar2;
+                auxiliar= binPossibilidades[linha][coluna]*peso[coluna];
+                auxiliar2= binPossibilidades[linha][coluna]*valor[coluna];
+                pesoAux+=auxiliar;
+                valorAux+=auxiliar2;
+
+        }
+                if((valorAux > auxV2) && (pesoAux <= auxCapacidade)){
+                auxV2=valorAux;
+                maiorValor[mochila]=valorAux;
+            }
+
+        }
+
+    }
+
+
+    //verificando se e solucao otima
+    int maiorValorTeste[numMochilas];
+    int pesoTeste[numMochilas];
+    for (int coluna = 0; coluna < numMochilas; coluna++)
+         {
+
+             int aju=0; // zerando antes da proxima iteracao
+             int aju1=0; // zerando antes da proxima iteracao
+             for(int i = 0; i < numItens; i++)
+            {
+
+                int auxiliar2;
+                auxiliar2= solucoesMatriz[i][coluna]*valor[i];
+                aju+=auxiliar2;
+                int auxiliar1;
+                auxiliar1= solucoesMatriz[i][coluna]*peso[i];
+                aju1+=auxiliar1;
+
+        }
+                maiorValorTeste[coluna]=aju;
+                pesoTeste[coluna]=aju1;
+
+        }
+
+
+
+     int inviavel, otimo=0;
+
+     for (int i = 0; i < numMochilas; i++)
+    {
+        if(pesoTeste[i]>pesoMaxporMochila[i]){
+            inviavel=1;
+            break;
+        }
+       else if(pesoTeste[i]<=pesoMaxporMochila[i] && maiorValor[i]== maiorValorTeste[i]){
+            otimo=1; //caso otimo
+
+        }
+        else{
+            // solucao viavel mas n otimo
+
+
+        }
+
+
+    }
+
+      if(inviavel==1){
+         printf("Solucao inviavel.\n");
+      }
+      else if(otimo==1){
+
+        printf("Solucao otima.\n");
+      }
+
+      else{
+
+        printf("Solucao viavel mas nao otima.\n");
+      }
+
+
+
+
+}
